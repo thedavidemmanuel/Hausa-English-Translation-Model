@@ -1,4 +1,5 @@
-English to Hausa Translation Model with RNNs and Attention
+## English to Hausa Translation Model with RNNs and Attention
+
 This repository contains a project that demonstrates the development of an English to Hausa translation model using Recurrent Neural Networks (RNNs) with an attention mechanism. The model is built using TensorFlow and Keras and is trained on a dataset of parallel English-Hausa sentences collected from Twitter.
 
 ## Table of Contents
