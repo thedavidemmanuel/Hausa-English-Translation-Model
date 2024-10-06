@@ -7,12 +7,16 @@ This repository contains a project that demonstrates the development of an Engli
 - [Introduction](#introduction)
 - [Dataset](#dataset)
 - [Data Preparation](#data-preparation)
+- [Exploratory Data Analysis (EDA)](#exploratory-data-analysis-eda)
 - [Model Architecture](#model-architecture)
+  - [Encoder](#encoder)
+  - [Decoder with Attention](#decoder-with-attention)
 - [Training](#training)
 - [Evaluation](#evaluation)
-- [Results](#results)
-- [Conclusion](#conclusion)
-- [Future Work](#future-work)
+  - [Attention Mechanism Visualization](#attention-mechanism-visualization)
+  - [Word Embedding Visualization](#word-embedding-visualization)
+- [Challenges and Solutions](#challenges-and-solutions)
+- [Conclusion and Future Work](#conclusion-and-future-work)
 - [Dependencies](#dependencies)
 - [Usage](#usage)
 - [Acknowledgments](#acknowledgments)
@@ -21,27 +25,25 @@ This repository contains a project that demonstrates the development of an Engli
 
 Machine translation is a crucial application of Natural Language Processing (NLP) that automates the translation of text or speech from one language to another. This project focuses on developing a neural machine translation model capable of translating sentences from English to Hausa, a Chadic language widely spoken in West Africa.
 
-We leverage the power of RNNs and attention mechanisms to handle the complexities of language translation, particularly for less-resourced languages like Hausa.
+Despite the limited resources and tools available for Hausa-English translation, this project leverages the power of RNNs and attention mechanisms to handle the complexities of language translation, particularly for less-resourced languages like Hausa.
 
 ## Dataset
 
-The dataset used in this project is a collection of parallel English-Hausa sentences extracted from Twitter. It includes both the original tweets and their replies, providing a diverse set of sentence structures and contexts.
-
 ### Source
 
-The dataset was obtained from Isa Inuwa-Dutse's Hausa Corpus on GitHub.
+The dataset used in this project is a collection of parallel English-Hausa sentences extracted from Twitter. It includes both the original tweets and their replies, providing a diverse set of sentence structures and contexts.
 
-- GitHub Repository: [Hausa Corpus](https://github.com/ijdutse/hausa-corpus)
-- The dataset file used is `parallel-hausa-tweets.csv`.
+- **GitHub Repository**: Hausa Corpus by Isa Inuwa-Dutse.
+- **Dataset File**: `parallel-hausa-tweets.csv`.
 
-### Columns
+### Columns Used
 
-- `CleanedMainT`: Hausa main text
-- `CleanedReplyT`: Hausa reply text
-- `Hausa2EngMainT`: English translation of the main text
-- `Hausa2EngReplyT`: English translation of the reply text
+- **CleanedMainT**: Hausa main text.
+- **Hausa2EngMainT**: English translation of the main text.
+- **CleanedReplyT**: Hausa reply text.
+- **Hausa2EngReplyT**: English translation of the reply text.
 
-**Note:** The dataset is included in this repository under the `data/` directory for ease of replication and testing.
+_Note: The dataset is included in this repository under the `data/` directory for ease of replication and testing._
 
 ### Licensing and Usage
 
@@ -49,167 +51,149 @@ The dataset is publicly available under the terms specified by the original auth
 
 ## Data Preparation
 
-1. **Data Loading and Inspection**
+### Data Cleaning
 
-   - Loaded the dataset using Pandas and inspected its structure.
-   - Identified and renamed relevant columns for processing.
+To prepare the data for modeling, several preprocessing steps were applied:
 
-2. **Data Cleaning**
+- **Data Loading and Inspection**: Loaded the dataset using Pandas and inspected its structure. Combined main texts and replies to enrich the dataset. Dropped any rows with missing values.
+- **Text Cleaning**: Lowercasing, punctuation removal, number removal, whitespace normalization, URL removal, stopword removal (English only), and lemmatization.
+- **Tokenization and Padding**: Used Keras's Tokenizer to convert text to sequences of integers. Added `<start>` and `<end>` tokens to the target sequences. Applied padding to ensure uniform sequence lengths.
 
-   - Defined a function to clean the text data by:
-     - Converting text to lowercase.
-     - Removing URLs, punctuation, numbers, and extra spaces.
-   - Applied the cleaning function to both Hausa and English texts.
-   - Removed any empty strings resulting from the cleaning process.
+## Exploratory Data Analysis (EDA)
 
-3. **Combining Texts**
+To gain insights into the dataset, EDA was performed:
 
-   - Combined main texts and replies to enrich the dataset.
-   - Dropped any rows with missing values.
-
-4. **Tokenization and Padding**
-
-   - Used Keras's Tokenizer to convert text to sequences of integers.
-   - Applied padding to ensure uniform sequence lengths for input into the model.
-   - Added `<start>` and `<end>` tokens to the target sequences to signify the beginning and end of sentences.
-
-5. **Train-Test Split**
-   - Split the dataset into training and validation sets using `train_test_split`, ensuring that the data and labels are correctly aligned.
+- **Word Cloud Visualizations**: Generated word clouds for both Hausa and English texts.
+- **Frequency Distribution Plots**: Plotted the top 20 most common words in both languages.
 
 ## Model Architecture
 
-The model is an RNN-based sequence-to-sequence architecture with attention mechanisms.
+The translation model is based on a sequence-to-sequence architecture with attention, comprising an encoder and a decoder.
 
-1. **Encoder**
+### Encoder
 
-   - **Inputs:** Takes the padded sequences of the source language (Hausa).
-   - **Embedding Layer:** Transforms integer sequences into dense vector representations.
-   - **LSTM Layer:** Processes the embeddings and returns the encoder outputs and states.
+- **Embedding Layer**: Converts input tokens (Hausa words) into dense vector representations.
+- **Bidirectional LSTM**: Processes the input sequences in both forward and backward directions.
+- **State Concatenation**: The forward and backward states are concatenated to form the initial states for the decoder.
 
-2. **Decoder**
+### Decoder with Attention
 
-   - **Inputs:** Takes the target sequences shifted by one time step.
-   - **Embedding Layer:** Similar to the encoder's embedding layer but for the target language (English).
-   - **LSTM Layer:** Generates outputs using the encoder's states as the initial state.
-   - **Attention Mechanism:** Uses Keras's built-in Attention layer to focus on relevant parts of the encoder's outputs.
-   - **Concatenation:** Combines context vectors from the attention layer with decoder outputs.
-   - **Dense Layer:** Outputs a probability distribution over the target vocabulary.
-
-3. **Inference Models**
-   - **Encoder Model:** Reuses the encoder part of the training model for generating encoder outputs and states during inference.
-   - **Decoder Model:** Reuses the decoder layers and includes placeholders for previous states and encoder outputs to generate translations one word at a time.
+- **Embedding Layer**: Converts target tokens (English words) into dense vector representations.
+- **LSTM Layer**: Generates output sequences using the encoder's context.
+- **Attention Mechanism**: Manually implemented using Dot and Activation layers to compute attention scores and weights.
+  - **Attention Scores**: Calculated using the dot product of decoder outputs and encoder outputs.
+  - **Attention Weights**: Obtained by applying a softmax activation to the attention scores.
+  - **Context Vector**: Computed as the weighted sum of the encoder outputs using the attention weights.
+- **Concatenation**: Combines context vectors with decoder outputs.
+- **Dense Layer**: Generates probabilities over the target vocabulary.
 
 ## Training
 
-1. **Compilation**
+### Compilation
 
-   - **Optimizer:** Adam optimizer with a learning rate of 0.001.
-   - **Loss Function:** Sparse categorical cross-entropy.
+- **Optimizer**: Adam optimizer with a learning rate of 0.001.
+- **Loss Function**: Sparse categorical cross-entropy.
+- **Metrics**: Accuracy (used for monitoring, although not ideal for sequence models).
 
-2. **Training Parameters**
+### Training Parameters
 
-   - **Batch Size:** 64
-   - **Epochs:** Up to 50 with early stopping.
-   - **Early Stopping:** Monitored validation loss with a patience of 5 epochs.
+- **Batch Size**: 64.
+- **Epochs**: Up to 50 with early stopping.
+- **Early Stopping**: Monitored validation loss with a patience of 5 epochs.
 
-3. **Training Process**
-   - Trained the model on the training set while validating on the validation set.
-   - Used the early stopping callback to prevent overfitting.
+### Training Process
+
+Trained the model on the training set while validating on the validation set. Used the early stopping callback to prevent overfitting.
 
 ## Evaluation
 
-1. **Decoding Function**
+### Attention Mechanism Visualization
 
-   - Defined a `decode_sequence` function to generate translations using the inference models. The function:
-     - Encodes the input sequence.
-     - Iteratively predicts the next word until the end token is generated or the maximum length is reached.
+Implemented a function to visualize attention weights between input and output sequences. Used heatmaps to display how the model focuses on different parts of the input sentence when generating each word of the output.
 
-2. **Testing on Validation Data**
+### Word Embedding Visualization
 
-   - Evaluated the model on several samples from the validation set.
-   - Ensured correct alignment between validation data and original texts by tracking indices.
+Used Principal Component Analysis (PCA) to reduce the dimensionality of the word embeddings. Plotted embeddings to observe the clustering of semantically similar words.
 
-3. **BLEU Score Calculation**
-   - Calculated the BLEU score using NLTK to quantitatively measure translation quality.
+## Challenges and Solutions
 
-## Results
+### Model Performance Issues
 
-### Training History
+- **Observation**: The model's predicted translations did not consistently match the actual translations. Despite training for multiple epochs, the validation loss remained relatively high.
+- **Possible Causes**: Limited dataset size, large vocabulary, model complexity, tokenization issues.
+- **Attempts to Improve**:
+  - **Data Preprocessing Enhancements**: Added stopword removal and lemmatization.
+  - **Exploratory Data Analysis**: Performed EDA to understand word distributions and common phrases.
+  - **Model Architecture Adjustments**: Experimented with Bidirectional LSTMs and modified the attention mechanism.
+  - **Training Strategies**: Implemented early stopping and adjusted hyperparameters.
 
-- Observed a steady decrease in both training and validation loss.
-- No significant overfitting was detected.
+### TensorFlow Warnings
 
-### Sample Translations
+- **Issue**: Received warnings related to `tf.function` retracing due to varying input shapes during prediction.
+- **Solution**: Ensured consistent input shapes and avoided passing Python objects instead of tensors. Modified the `decode_sequence` function to prevent unnecessary retracing.
 
-The model was able to generate translations that, in some cases, captured the general meaning of the input sentences.
+## Conclusion and Future Work
 
-**Example:**
+Despite the improvements and enhancements, the model did not achieve the desired level of performance. This outcome highlights the challenges of developing machine translation models for under-resourced languages like Hausa.
 
-- **Input (Hausa):** jurgen klopp ya lashe kyautar fifa ta gwarzon koci a duniya
-- **Actual Translation:** jurgen klopp has won the fifa world coach of the year award
-- **Predicted Translation:** jurgen klopp has won the fifa best coach in the world
+### Future Work
 
-### BLEU Score
-
-- The BLEU score on the validation set was calculated to assess the model's performance quantitatively.
-
-## Conclusion
-
-This project demonstrates the feasibility of building an English to Hausa translation model using RNNs with attention mechanisms. Despite the limited dataset size, the model shows promising results, capturing the essence of some input sentences in its translations.
-
-## Future Work
-
-To enhance the model's performance, the following steps are recommended:
-
-- **Data Expansion:** Collect more English-Hausa sentence pairs to increase the dataset size.
-- **Pre-trained Embeddings:** Integrate pre-trained word embeddings (e.g., FastText) to provide richer semantic information.
-- **Hyperparameter Tuning:** Experiment with different model architectures and hyperparameters.
-- **Advanced Decoding Techniques:** Implement beam search during decoding to improve translation quality.
-- **Evaluation Metrics:** Use additional metrics like ROUGE or METEOR for a more comprehensive evaluation.
+- **Data Expansion**: Collect more parallel Hausa-English data and apply data augmentation techniques.
+- **Advanced Tokenization**: Implement subword tokenization methods like Byte Pair Encoding (BPE) or WordPiece.
+- **Pre-trained Models**: Leverage multilingual pre-trained models like mBART or mT5.
+- **Alternative Architectures**: Explore Transformer-based architectures.
+- **Evaluation Metrics**: Use BLEU score and other metrics like ROUGE or METEOR.
 
 ## Dependencies
 
-- Python 3.x
-- Jupyter Notebook
-- TensorFlow 2.x
-- Keras
-- NumPy
-- Pandas
-- Matplotlib
-- Scikit-learn
-- NLTK
+- **Programming Language**: Python 3.x
+- **Libraries**:
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - TensorFlow 2.x
+  - Keras
+  - NLTK
+  - WordCloud
+  - nltk (stopwords, wordnet)
+- **Others**: Jupyter Notebook
 
 ## Usage
 
-1. **Clone the Repository**
+### Clone the Repository
 
-   ```bash
-   git clone https://github.com/yourusername/english-to-hausa-translation.git
-   ```
+```bash
+git clone https://github.com/yourusername/english-to-hausa-translation.git
+```
 
-2. **Install Dependencies**
-   Ensure you have all the required Python packages installed. You can install them using:
+### Install Dependencies
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+Ensure you have all the required Python packages installed. You can install them using:
 
-   **Note:** Since the `requirements.txt` file is not provided, you may need to install the packages manually.
+```bash
+pip install -r requirements.txt
+```
 
-3. **Download the Dataset**
-   The dataset `parallel-hausa-tweets.csv` is included in the `data/` directory of this repository.
+_Note: Since the `requirements.txt` file is not provided, you may need to install the packages manually._
 
-4. **Run the Notebook**
-   Open the Jupyter Notebook:
-   ```bash
-   jupyter notebook english_to_hausa_translation.ipynb
-   ```
-   Run each cell sequentially to execute the code.
+### Download the Dataset
+
+The dataset `parallel-hausa-tweets.csv` is included in the `data/` directory of this repository.
+
+### Run the Notebook
+
+Open the Jupyter Notebook:
+
+```bash
+jupyter notebook hausa_english_translation.ipynb
+```
+
+Run each cell sequentially to execute the code.
 
 ## Acknowledgments
 
-- **Dataset Author:** Special thanks to Isa Inuwa-Dutse for providing the Hausa Corpus.
-- **Data Source:** The dataset is sourced from Isa Inuwa-Dutse's Hausa Corpus.
-- **Libraries and Tools:** TensorFlow, Keras, and NLTK for providing powerful tools for NLP and machine learning.
-
-Feel free to explore, modify, and enhance this project. Contributions are welcome!
+- **Dataset Author**: Special thanks to Isa Inuwa-Dutse for providing the Hausa Corpus.
+- **Data Source**: The dataset is sourced from Isa Inuwa-Dutse's Hausa Corpus.
+- **Libraries and Tools**: Appreciation for the developers of TensorFlow, Keras, NLTK, and other open-source tools used in this project.
