@@ -26,16 +26,25 @@ We leverage the power of RNNs and attention mechanisms to handle the complexitie
 
 The dataset used in this project is a collection of parallel English-Hausa sentences extracted from Twitter. It includes both the original tweets and their replies, providing a diverse set of sentence structures and contexts.
 
-**Source:** `parallel-hausa-tweets.csv`
+### Source
 
-**Columns:**
+The dataset was obtained from Isa Inuwa-Dutse's Hausa Corpus on GitHub.
+
+- GitHub Repository: [Hausa Corpus](https://github.com/ijdutse/hausa-corpus)
+- The dataset file used is `parallel-hausa-tweets.csv`.
+
+### Columns
 
 - `CleanedMainT`: Hausa main text
 - `CleanedReplyT`: Hausa reply text
 - `Hausa2EngMainT`: English translation of the main text
 - `Hausa2EngReplyT`: English translation of the reply text
 
-_Note: Due to privacy and licensing restrictions, the dataset is not included in this repository._
+**Note:** The dataset is included in this repository under the `data/` directory for ease of replication and testing.
+
+### Licensing and Usage
+
+The dataset is publicly available under the terms specified by the original author. Please refer to the original repository for licensing details and proper usage guidelines. Ensure compliance with Twitter's terms of service when using or distributing data collected from Twitter.
 
 ## Data Preparation
 
@@ -46,11 +55,11 @@ _Note: Due to privacy and licensing restrictions, the dataset is not included in
 
 2. **Data Cleaning**
 
-   - **Cleaning Function:** Defined a function to clean the text data by:
+   - Defined a function to clean the text data by:
      - Converting text to lowercase.
      - Removing URLs, punctuation, numbers, and extra spaces.
-   - **Application:** Applied the cleaning function to both Hausa and English texts.
-   - **Filtering:** Removed any empty strings resulting from the cleaning process.
+   - Applied the cleaning function to both Hausa and English texts.
+   - Removed any empty strings resulting from the cleaning process.
 
 3. **Combining Texts**
 
@@ -59,9 +68,9 @@ _Note: Due to privacy and licensing restrictions, the dataset is not included in
 
 4. **Tokenization and Padding**
 
-   - **Tokenization:** Used Keras's Tokenizer to convert text to sequences of integers.
-   - **Sequence Padding:** Applied padding to ensure uniform sequence lengths for input into the model.
-   - **Special Tokens:** Added `<start>` and `<end>` tokens to the target sequences to signify the beginning and end of sentences.
+   - Used Keras's Tokenizer to convert text to sequences of integers.
+   - Applied padding to ensure uniform sequence lengths for input into the model.
+   - Added `<start>` and `<end>` tokens to the target sequences to signify the beginning and end of sentences.
 
 5. **Train-Test Split**
    - Split the dataset into training and validation sets using `train_test_split`, ensuring that the data and labels are correctly aligned.
@@ -110,8 +119,7 @@ The model is an RNN-based sequence-to-sequence architecture with attention mecha
 
 1. **Decoding Function**
 
-   - Defined a `decode_sequence` function to generate translations using the inference models.
-   - The function:
+   - Defined a `decode_sequence` function to generate translations using the inference models. The function:
      - Encodes the input sequence.
      - Iteratively predicts the next word until the end token is generated or the maximum length is reached.
 
@@ -185,10 +193,10 @@ To enhance the model's performance, the following steps are recommended:
    pip install -r requirements.txt
    ```
 
-   _Note: Since the `requirements.txt` file is not provided, you may need to install the packages manually._
+   **Note:** Since the `requirements.txt` file is not provided, you may need to install the packages manually.
 
 3. **Download the Dataset**
-   Place the `parallel-hausa-tweets.csv` file in the `data/` directory.
+   The dataset `parallel-hausa-tweets.csv` is included in the `data/` directory of this repository.
 
 4. **Run the Notebook**
    Open the Jupyter Notebook:
@@ -199,5 +207,8 @@ To enhance the model's performance, the following steps are recommended:
 
 ## Acknowledgments
 
-- **Data Source:** Special thanks to the contributors who provided the parallel English-Hausa dataset.
+- **Dataset Author:** Special thanks to Isa Inuwa-Dutse for providing the Hausa Corpus.
+- **Data Source:** The dataset is sourced from Isa Inuwa-Dutse's Hausa Corpus.
 - **Libraries and Tools:** TensorFlow, Keras, and NLTK for providing powerful tools for NLP and machine learning.
+
+Feel free to explore, modify, and enhance this project. Contributions are welcome!
